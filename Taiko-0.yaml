@@ -1,0 +1,291 @@
+meta:
+  name: taik0
+  version: 0.1
+  author: LittleDeltaPlus
+  
+units:
+  kx: cx + 0.6
+  ky: cy + 1.5
+  px: kx + 4
+  py: ky + 4
+
+points:
+  key:
+    footprints:
+      choc_hotswap:
+        type: choc
+        params:
+          hotswap: true
+          reverse: true
+          keycaps: true
+        nets:
+         from: =colrow
+         to: =row_net
+        anchor:
+          shift: [0, -5]
+  zones:
+    matrix:
+    # Fix placement on KiCAD sheet.
+      anchor:
+        shift: [100, -100]
+      key.padding: ky
+      columns:
+        mod:
+          key:
+            column_net: col_mod
+        pinky:
+          key:
+            column_net: col_pinky
+            stagger: 0.15ky
+            spread: kx
+        ring:
+          key:
+            column_net: col_ring
+            stagger: 0.4ky
+            spread: kx
+        middle:
+          key:
+            column_net: col_middle
+            stagger: 0.4ky
+            spread: kx
+        index:
+          key:
+            column_net: col_index
+            stagger: -0.4ky
+            spread: kx
+        inner:
+          key:
+            column_net: col_inner
+            stagger: -0.15ky
+            spread: kx
+      rows:
+        bottom:
+          row_net: row_bottom
+        home:
+          row_net: row_home
+        top:
+          row_net: row_top
+
+    thumb:
+      anchor:
+        ref: matrix_inner_bottom
+        shift: [-0.5 kx, -1.05ky]
+      columns:
+        tucky:
+          key:
+            name: thumb_tucky
+            spread: 1.5kx
+            column_net: col_middle
+        reachy:
+          key:
+            spread: kx
+            splay: -45/2
+            origin: [-0.5kx, -0.5ky]
+            name: thumb_reachy
+            column_net: col_index
+        far:
+          key:
+            spread: kx
+            splay: -45/2
+            origin: [-0.5kx, -0.5ky]
+            name: thumb_far
+            column_net: col_inner
+      rows:
+        cluster:
+          row_net: row_thumb
+
+outlines:
+  keys:
+    - what: rectangle
+      where: true
+      size: [kx-0.5,ky-0.5]
+  
+  keycaps:
+    - what: rectangle
+      where: true
+      size: [kx, ky]
+      corner: 1
+
+  board:
+    - what: polygon
+      operation: stack
+      asym: both
+      points:
+        - ref: matrix_mod_top
+          shift: [-0.5px, 0.5py]
+        - ref: matrix_mod_top
+          shift: [0.25px, 0.5py]
+        - ref: matrix_pinky_top
+          shift: [-0.5px, 0.5py]
+        - ref: matrix_pinky_top
+          shift: [0.125px, 0.5py]
+        - ref: matrix_ring_top
+          shift: [-0.5px, 0.5py]
+        - ref: matrix_ring_top
+          shift: [0.125px, 0.5py]
+        - ref: matrix_middle_top
+          shift: [-0.5px, 0.5py]
+        - ref: matrix_middle_top
+          shift: [0.5px, 0.5py]
+        - ref: matrix_index_top
+          shift: [-0.125px, 0.5py]
+        - ref: matrix_index_top
+          shift: [0.5px, 0.5py]
+        - ref: matrix_inner_top
+          shift: [-0.125px, 0.5py]
+        - ref: matrix_inner_top
+          shift: [2.5px, 0.5py]
+        - ref: matrix_inner_top
+          shift: [2.5px, 0]
+        - ref: matrix_inner_home
+          shift: [2.35px, 0.5py]
+        - ref: matrix_inner_home
+          shift: [2.35px, -0.5py]
+        - ref: matrix_inner_bottom
+          shift: [2.5px, 0]
+        - ref: thumb_far
+          shift: [1px, 0.7py]
+        - ref: thumb_far
+          shift: [0.75px, -0.5py]
+        - ref: thumb_far
+          shift: [-0.525px, -0.525py]
+        - ref: thumb_tucky
+          shift: [0.5px, -0.525py]
+        - ref: thumb_tucky
+          shift: [-1.75px, -0.525py]
+        - ref: matrix_pinky_bottom
+          shift: [0.625px, -0.5py]
+        - ref: matrix_pinky_bottom
+          shift: [-0.25px, -0.5py]
+        - ref: matrix_mod_bottom
+          shift: [0.5px, -0.5py]
+        - ref: matrix_mod_bottom
+          shift: [-0.5px, -0.5py]
+
+  plate:
+    - name: board
+    - operation: subtract
+      name: keys
+
+pcbs:
+  taiko-0_plate:
+    outlines:
+      edge:
+        outline: plate
+        layer: Edge.Cuts
+  taiko-0_bottom:
+    outlines:
+      edge:
+        outline: board
+        layer: Edge.Cuts 
+  taiko-0_main:
+    outlines:
+      main:
+        outline: board
+    footprints:
+      choc_hotswap:
+        what: choc
+        where: true
+        params:
+          keycaps: true
+          reverse: true
+          hotswap: false
+          from: "{{column_net}}"
+          to: "{{colrow}}"
+        adjust:
+          rotate: 180
+      diode:
+          what: diode
+          where: true
+          params:
+            from: "{{colrow}}"
+            to: "{{row_net}}"
+          adjust:
+            shift: [-9, 3]
+            rotate: -90
+      rgb:
+          what: sk6812_mini_e
+          where: true
+          params:
+            din: ""
+            dout: ""
+          adjust:
+            shift: [0, 5]
+      oled:
+        what: oled
+        params:
+          SDA: ""
+          SCL: ""
+        where:
+          ref: matrix_inner_top
+          shift: [0.45px, 0.45px]
+      mcu:
+        what: PGA2040
+        params:
+          P4: row_top
+          P5: row_home
+          P6: row_bottom
+          P7: row_thumb
+          P14: col_inner
+          P15: col_index
+          P18: col_middle
+          P19: col_ring
+          P20: col_pinky
+        where:
+          ref: matrix_inner_top
+          shift: [1px,-0.25py]
+          rotate: -90
+      trrs:
+        what: trrs
+        where:
+          ref: matrix_inner_top
+          shift: [1.85px, 0.5py]
+        params:
+          reverse: true
+          symmetric: false
+          A: GND
+          B: GND
+          C: P0
+          D: VCC
+      reset_btn:
+        what: reset_button
+        where:
+          - ref: matrix_inner_home
+            shift: [2.25px, 1py]
+            rotate: 90
+        params:
+          from: GND
+          to: RST
+      scrollwheel:
+        what: scrollwheel
+        params:
+          from: col_ring
+          to: endcoder
+          A: P10
+          B: P16
+          C: GND
+          D: ""
+        where: 
+          ref: thumb_tucky
+          shift: [-1.5kx, 0]
+      rotary:
+        what: rotary
+        params:
+          from: col_ring
+          to: encoder
+          A: P10
+          B: P16
+          C: GND
+        where: 
+          ref: thumb_tucky
+          shift: [-1.3kx, 0]
+          rotate: 180
+      enc_diode:
+        what: diode
+        params:
+            from: encoder
+            to: row_thumb
+        where:
+          ref: thumb_tucky
+          shift: [-1.3kx, 0.5ky]
+          rotate: 180
